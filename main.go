@@ -1,23 +1,35 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
 )
 
 // Structure to hold the form input
 type FinancialData struct {
-	Income      float64
-	Expenses    float64
-	Savings     float64
-	SavingsGoal float64
+	Income      float64 `json:"income"`
+	Expenses    float64 `json:"expenses"`
+	Savings     float64 `json:"savings"`
+	SavingsGoal float64 `json:"savings_goal"`
 }
 
-func (fd *FinancialData) GetBalance() float64 {
-	return fd.Income - fd.Expenses
+func (fd *FinancialData) GetBalance() (float64, error) {
+	if fd.Income < fd.Expenses {
+		return -1, fmt.Errorf("expenses exceeded income = income: %.0f, expenses: %.0f", fd.Income, fd.Expenses)
+	}
+	return fd.Income - fd.Expenses, nil
 }
 
+// Create constant for each score scenario <= 0, 1, 2, 3, 4, 5...
 func CalculateFinancialHealth(data FinancialData) float64 {
-	balance := data.GetBalance()
+	balance, err := data.GetBalance()
+	if err != nil {
+		log.Println(err) // Ask Henry
+		// add return here to stop logic
+	}
 	balanceRatio := balance / data.Income
 	balanceScore := calculateBalancePoints(balanceRatio)
 
@@ -68,34 +80,66 @@ func calculateSavingPoints(ratio float64) float64 {
 	}
 }
 
-func SavingsProjection(data FinancialData) {
+func SavingsProjection(data FinancialData) float64 {
 	pendingSavings := data.SavingsGoal - data.Savings
-	balance := data.GetBalance()
-	if balance <= 0 {
-		fmt.Println("Not able to save money")
+	balance, err := data.GetBalance()
+	if err != nil {
+		log.Println(err) // Ask Henry
+		return 0
+	}
+	return pendingSavings / balance
+}
+
+// handler for CalculateFinancialHealth
+func financialHealthHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+
+	var data FinancialData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-	PendingMonths := pendingSavings / balance
-	fmt.Printf("You're able to reach your saving goals in %.0f months\n", PendingMonths)
+
+	financialHealthScore := CalculateFinancialHealth(data)
+	response := map[string]float64{"financialHealthScore": financialHealthScore}
+	json.NewEncoder(w).Encode(response)
+}
+
+// handler for SavingsProjection
+func SavingsProjectionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+
+	var data FinancialData
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	PendingMonths := SavingsProjection(data)
+	response := map[string]float64{"PendingMonths": PendingMonths}
+	json.NewEncoder(w).Encode(response)
+
 }
 
 func main() {
-	var data FinancialData
-	fmt.Println("Enter your income: ")
-	fmt.Scan(&data.Income)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/financial-health", financialHealthHandler)
+	mux.HandleFunc("/api/savings-projection", SavingsProjectionHandler)
 
-	fmt.Println("Enter your expenses: ")
-	fmt.Scan(&data.Expenses)
-
-	fmt.Println("Enter your current savings: ")
-	fmt.Scan(&data.Savings)
-
-	fmt.Println("Enter your savings goal: ")
-	fmt.Scan(&data.SavingsGoal)
-
-	// Calculate and display financial health score
-	financialHealth := CalculateFinancialHealth(data)
-	fmt.Printf("Your Financial Health Score: %.0f\n", financialHealth)
-	SavingsProjection(data)
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  15 * time.Second,
+	}
+	fmt.Println("Server is running on port 8080...")
+	log.Fatal(server.ListenAndServe())
 
 }
