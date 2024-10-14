@@ -1,11 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Structure to hold the form input
@@ -13,7 +15,7 @@ type FinancialData struct {
 	Income      float64 `json:"income"`
 	Expenses    float64 `json:"expenses"`
 	Savings     float64 `json:"savings"`
-	SavingsGoal float64 `json:"savings_goal"`
+	SavingsGoal float64 `json:"savingsGoal"`
 }
 
 func (fd *FinancialData) GetBalance() (float64, error) {
@@ -28,7 +30,7 @@ func CalculateFinancialHealth(data FinancialData) float64 {
 	balance, err := data.GetBalance()
 	if err != nil {
 		log.Println(err) // Ask Henry
-		// add return here to stop logic
+		return 0         // add return here to stop logic
 	}
 	balanceRatio := balance / data.Income
 	balanceScore := calculateBalancePoints(balanceRatio)
@@ -83,63 +85,56 @@ func calculateSavingPoints(ratio float64) float64 {
 func SavingsProjection(data FinancialData) float64 {
 	pendingSavings := data.SavingsGoal - data.Savings
 	balance, err := data.GetBalance()
-	if err != nil {
-		log.Println(err) // Ask Henry
-		return 0
+	if err != nil || balance <= 0 { // Check for error or zero/negative balance
+		log.Println("Not able to save money:", err)
+		return -1 // Return 0 or a more meaningful value if the user can't save
 	}
-	return pendingSavings / balance
+	fmt.Println("---------")
+	pendingMonths := pendingSavings / balance
+	return pendingMonths
 }
 
 // handler for CalculateFinancialHealth
-func financialHealthHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-
-	var data FinancialData
-	err := json.NewDecoder(r.Body).Decode(&data)
+func financialHealthHandler(c echo.Context) error {
+	data := FinancialData{}
+	err := c.Bind(&data)
 	if err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
-
 	financialHealthScore := CalculateFinancialHealth(data)
-	response := map[string]float64{"financialHealthScore": financialHealthScore}
-	json.NewEncoder(w).Encode(response)
+	return c.JSON(http.StatusOK, map[string]float64{"financialHealthScore": financialHealthScore})
 }
 
 // handler for SavingsProjection
-func SavingsProjectionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-
-	var data FinancialData
-	err := json.NewDecoder(r.Body).Decode(&data)
+func SavingsProjectionHandler(c echo.Context) error {
+	data := FinancialData{}
+	err := c.Bind(&data)
 	if err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
 
-	PendingMonths := SavingsProjection(data)
-	response := map[string]float64{"PendingMonths": PendingMonths}
-	json.NewEncoder(w).Encode(response)
-
+	pendingMonths := SavingsProjection(data)
+	return c.JSON(http.StatusOK, map[string]float64{"savingsProjectionInMonths": pendingMonths})
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/financial-health", financialHealthHandler)
-	mux.HandleFunc("/api/savings-projection", SavingsProjectionHandler)
+	const port string = ":8080"
+
+	e := echo.New()
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.POST("/api/financial-health", financialHealthHandler)
+	e.POST("/api/savings-projection", SavingsProjectionHandler)
 
 	server := &http.Server{
-		Addr:         ":8080",
-		Handler:      mux,
+		Addr:         port,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,
 	}
-	fmt.Println("Server is running on port 8080...")
-	log.Fatal(server.ListenAndServe())
+
+	log.Fatal(e.StartServer(server))
 
 }
