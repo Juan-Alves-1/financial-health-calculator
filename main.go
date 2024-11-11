@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"time"
 
@@ -82,16 +83,18 @@ func calculateSavingPoints(ratio float64) float64 {
 	}
 }
 
-func SavingsProjection(data FinancialData) float64 {
+func MonthlySavingProjection(data FinancialData) int {
 	pendingSavings := data.SavingsGoal - data.Savings
 	balance, err := data.GetBalance()
-	if err != nil || balance <= 0 { // Check for error or zero/negative balance
+
+	if err != nil || balance <= 0 {
 		log.Println("Not able to save money:", err)
 		return -1 // Return 0 or a more meaningful value if the user can't save
 	}
-	fmt.Println("---------")
-	pendingMonths := pendingSavings / balance
-	return pendingMonths
+
+	months := int(math.Ceil(pendingSavings / balance))
+
+	return months
 }
 
 // handler for CalculateFinancialHealth
@@ -113,8 +116,8 @@ func SavingsProjectionHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
 
-	pendingMonths := SavingsProjection(data)
-	return c.JSON(http.StatusOK, map[string]float64{"savingsProjectionInMonths": pendingMonths})
+	pendingMonths := MonthlySavingProjection(data)
+	return c.JSON(http.StatusOK, map[string]int{"savingsProjectionInMonths": pendingMonths})
 }
 
 func main() {
