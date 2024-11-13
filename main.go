@@ -1,33 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"net/http"
 	"time"
 
+	customMiddleware "fhi/middleware"
+	"fhi/models"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// Structure to hold the form input
-type FinancialData struct {
-	Income      float64 `json:"income"`
-	Expenses    float64 `json:"expenses"`
-	Savings     float64 `json:"savings"`
-	SavingsGoal float64 `json:"savingsGoal"`
-}
-
-func (fd *FinancialData) GetBalance() (float64, error) {
-	if fd.Income < fd.Expenses {
-		return -1, fmt.Errorf("expenses exceeded income = income: %.0f, expenses: %.0f", fd.Income, fd.Expenses)
-	}
-	return fd.Income - fd.Expenses, nil
-}
-
 // Create constant for each score scenario <= 0, 1, 2, 3, 4, 5...
-func CalculateFinancialHealth(data FinancialData) float64 {
+func CalculateFinancialHealth(data models.FinancialData) float64 {
 	balance, err := data.GetBalance()
 	if err != nil {
 		log.Println(err) // Ask Henry
@@ -83,7 +70,7 @@ func calculateSavingPoints(ratio float64) float64 {
 	}
 }
 
-func MonthlySavingProjection(data FinancialData) int {
+func MonthlySavingProjection(data models.FinancialData) int {
 	pendingSavings := data.SavingsGoal - data.Savings
 	balance, err := data.GetBalance()
 
@@ -99,24 +86,15 @@ func MonthlySavingProjection(data FinancialData) int {
 
 // handler for CalculateFinancialHealth
 func financialHealthHandler(c echo.Context) error {
-	data := FinancialData{}
-	err := c.Bind(&data)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
-	}
-	financialHealthScore := CalculateFinancialHealth(data)
+	data := c.Get("financialData").(*models.FinancialData)
+	financialHealthScore := CalculateFinancialHealth(*data)
 	return c.JSON(http.StatusOK, map[string]float64{"financialHealthScore": financialHealthScore})
 }
 
 // handler for SavingsProjection
 func SavingsProjectionHandler(c echo.Context) error {
-	data := FinancialData{}
-	err := c.Bind(&data)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
-	}
-
-	pendingMonths := MonthlySavingProjection(data)
+	data := c.Get("financialData").(*models.FinancialData)
+	pendingMonths := MonthlySavingProjection(*data)
 	return c.JSON(http.StatusOK, map[string]int{"savingsProjectionInMonths": pendingMonths})
 }
 
@@ -128,8 +106,8 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.POST("/api/financial-health", financialHealthHandler)
-	e.POST("/api/savings-projection", SavingsProjectionHandler)
+	e.POST("/api/financial-health", financialHealthHandler, customMiddleware.ValidateFinancialData)
+	e.POST("/api/savings-projection", SavingsProjectionHandler, customMiddleware.ValidateFinancialData)
 
 	server := &http.Server{
 		Addr:         port,
