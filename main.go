@@ -36,7 +36,6 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// add endpoint for the frontend (template)
 	e.POST("/api/financial-health", handlers.FinancialHealth, customMiddleware.ValidateFinancialData)
 	e.POST("/api/savings-projection", handlers.SavingProjection, customMiddleware.ValidateFinancialData)
 
