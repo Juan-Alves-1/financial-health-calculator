@@ -1,32 +1,14 @@
-
 services:
-  go_app:
+  app:
     build:
       context: ./
-    volumes:
-      - ./templates:/templates # Mount templates for the Go app
-    networks:
-      - app_network
-    container_name: go_app
-    expose:
-      - "8080" # Expose internal port for Nginx to connect
-    environment:
-      - PORT=8080 # Example: Set your app's listening port if required
 
-  nginx_proxy:
-    build:
-      context: ./nginx
+
+  proxy:
+    image: nginx:alpine
     ports:
-      - "80:80" # Map Nginx's port 80 to host port 80
-    networks:
-      - app_network
+      - "80:80" 
     depends_on:
-      - go_app
-    container_name: nginx_proxy
+      - app
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    entrypoint: [ "tail", "-f", "/dev/null" ] # Keep container running for debugging
-
-networks:
-  app_network:
-    driver: bridge # Bridge network for container communication
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rox
