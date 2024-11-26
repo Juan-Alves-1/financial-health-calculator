@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: ./
+
+
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80" 
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rox
