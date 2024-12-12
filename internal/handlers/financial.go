@@ -8,6 +8,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func DisplayHomepage(c echo.Context) error {
+	return c.Render(http.StatusOK, "index.html", nil)
+}
+
 func FinancialHealth(c echo.Context) error {
 	data := c.Get("financialData").(*models.FinancialData)
 	financialHealthScore := services.CalculateFinancialHealth(*data)

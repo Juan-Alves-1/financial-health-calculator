@@ -17,6 +17,8 @@ RUN apk add libc6-compat
 
 COPY --from=build /app/main /usr/local/bin/main
 COPY --from=build /app/templates /templates 
-# template directory could be more linux friendly
+COPY --from=build /app/static /static 
+# directoris above could be more linux friendly
+
 
 ENTRYPOINT ["/usr/local/bin/main"]
