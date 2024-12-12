@@ -36,8 +36,11 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.POST("/api/financial-health", handlers.FinancialHealth, customMiddleware.ValidateFinancialData)
-	e.POST("/api/savings-projection", handlers.SavingProjection, customMiddleware.ValidateFinancialData)
+	e.Static("/static", "static") // deny any accesses?
+
+	e.GET("/", handlers.DisplayHomepage)
+	e.POST("/financial-health", handlers.FinancialHealth, customMiddleware.ValidateFinancialData)
+	e.POST("/savings-projection", handlers.SavingProjection, customMiddleware.ValidateFinancialData)
 
 	server := &http.Server{
 		Addr:         port,
