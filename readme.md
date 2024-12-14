@@ -26,27 +26,6 @@ This repository contains the Financial Health Indicator (FHI) Web Application, a
 
 ---
 
-## Repository Structure
-
-FHI
-├── etc/                 # Configuration files (e.g., environment variables)
-├── internal/            # Internal Go application logic
-├── models/              # Go structs and models
-├── nginx/               # Nginx configuration files
-│   └── nginx.conf       # Nginx reverse proxy and SSL configuration
-├── static/              # Static assets (CSS, JS, images)
-├── templates/           # HTML templates served by the Go application
-├── var/                 # Variable data for the app
-├── .gitignore           # Files to ignore in Git
-├── docker-compose.dev.yml # Docker Compose configuration for development
-├── docker-compose.yml   # Docker Compose configuration for production
-├── Dockerfile           # Dockerfile for the Go application
-├── go.mod               # Go module dependencies
-├── go.sum               # Go module checksums
-└── main.go              # Main application entry point
-
----
-
 ## Prerequisites
 
 Before starting, ensure you have the following installed:
@@ -99,7 +78,9 @@ Ensure the DNS record for your domain (e.g., calculator.conectapro.tech) points 
 
 Test HTTPS:
 
+```bash
 curl -v https://calculator.conectapro.tech
+```
 
 ## Configuration
 
@@ -111,12 +92,13 @@ Update environment variables in etc/ for customizing the application.
 
 The nginx/nginx.conf file includes:
 
-Reverse proxy settings.
+- Reverse proxy settings.
 
-TLS/SSL configuration.
+- TLS/SSL configuration.
 
 Example snippet:
 
+```bash
 server {
     listen 443 ssl;
     server_name calculator.conectapro.tech;
@@ -128,15 +110,17 @@ server {
         proxy_pass http://app:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        }
     }
-}
+```
 
 ### Docker Compose
 
-docker-compose.yml orchestrates both the Go app and Nginx reverse proxy.
+- docker-compose.yml orchestrates both the Go app and Nginx reverse proxy.
 
 Example snippet:
 
+```bash
 services:
   app:
     image: your_dockerhub_username/fhi-app:latest
@@ -162,34 +146,34 @@ services:
 networks:
   app_network:
     driver: bridge
+```
 
 ### Testing
 
-Test the Web Application
+- Test the Web Application by accessing the homepage:
 
-Access the homepage:
-
-Visit http://localhost (development) or https://calculator.conectapro.tech (production).
+Visit http://localhost (development) or https://subdomain.yourwebsite.com (production).
 
 Test the financial health and savings projection by submitting form data on the homepage. The application will render HTML pages with the results.
 
 ### Troubleshooting
 
-Nginx Not Forwarding Requests:
+- Nginx Not Forwarding Requests:
 
 Check the nginx.conf file for correct proxy settings.
 
 Ensure the app service is running and reachable within the Docker network.
 
-TLS Certificate Issues:
+- TLS Certificate Issues:
 
 Verify that the Let's Encrypt certificate files exist in /etc/letsencrypt.
 
 Test renewal with:
-
+``` bash 
 certbot renew --dry-run
+```
 
-DNS Issues:
+- DNS Issues:
 
 Verify the DNS A record points to the server's public IP.
 
