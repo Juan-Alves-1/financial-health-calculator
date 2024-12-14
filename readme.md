@@ -1,14 +1,12 @@
 # Financial Health Indicator (FHI) Web Application with Nginx Reverse Proxy and TLS
 
-This repository contains the Financial Health Indicator (FHI) Web Application, a Go-based application designed to calculate financial health and savings projections. The application serves HTML pages with results and is containerized alongside a Dockerized Nginx reverse proxy, configured to handle TLS encryption using Let's Encrypt.
-
----
+This repository contains the Financial Health Indicator (FHI) Web Application, a Go-based application designed to calculate financial health and savings projections. The application serves HTML pages with results and is containerized alongside a Dockerized Nginx reverse proxy, configured to handle TLS encryption using Let's Encrypt. 
 
 ## Features
 
 1. **Go Application**:
    - Developed using Go to calculate financial health indicators and savings projections.
-   - Renders HTML pages for results instead of JSON API responses.
+   - Renders HTML pages for results according to outcome.
    - Containerized with Docker for ease of deployment.
 
 2. **Nginx Reverse Proxy**:
@@ -24,7 +22,6 @@ This repository contains the Financial Health Indicator (FHI) Web Application, a
 5. **Production-Ready Configuration**:
    - Optimized Nginx settings for security and performance.
 
----
 
 ## Prerequisites
 
@@ -34,14 +31,13 @@ Before starting, ensure you have the following installed:
 2. [Docker Compose](https://docs.docker.com/compose/)
 3. [Go](https://golang.org/) (for local development)
 
----
 
 ## Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-repository-name/fhi.git
+git clone https://github.com/Juan-Alves-1/financial-health-calculator.git
 cd fhi 
 ```
 
@@ -51,7 +47,7 @@ cd fhi
 - Update **DNS** settings in `nginx/nginx.conf` to match your domain:
 
   ```nginx
-  server_name calculator.conectapro.tech www.calculator.conectapro.tech;
+  server_name yourwebsite.com www.yourwebsite.com;
   ```
 
 ### 3. Build and Run Locally (Development)
@@ -79,7 +75,7 @@ Ensure the DNS record for your domain (e.g., calculator.conectapro.tech) points 
 Test HTTPS:
 
 ```bash
-curl -v https://calculator.conectapro.tech
+curl -v https://yourwebsite.com
 ```
 
 ## Configuration
@@ -101,10 +97,10 @@ Example snippet:
 ```bash
 server {
     listen 443 ssl;
-    server_name calculator.conectapro.tech;
+    server_name yourwebsite.com;
 
-    ssl_certificate /etc/letsencrypt/live/calculator.conectapro.tech/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/calculator.conectapro.tech/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/yourwebsite.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourwebsite.com/privkey.pem;
 
     location / {
         proxy_pass http://app:8080;
