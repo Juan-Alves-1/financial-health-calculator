@@ -1,36 +1,32 @@
-Financial Health Indicator (FHI) Web Application with Nginx Reverse Proxy and TLS
+# Financial Health Indicator (FHI) Web Application with Nginx Reverse Proxy and TLS
 
 This repository contains the Financial Health Indicator (FHI) Web Application, a Go-based application designed to calculate financial health and savings projections. The application serves HTML pages with results and is containerized alongside a Dockerized Nginx reverse proxy, configured to handle TLS encryption using Let's Encrypt.
 
-Features
+---
 
-Go Application:
+## Features
 
-Developed using Go to calculate financial health indicators and savings projections.
+1. **Go Application**:
+   - Developed using Go to calculate financial health indicators and savings projections.
+   - Renders HTML pages for results instead of JSON API responses.
+   - Containerized with Docker for ease of deployment.
 
-Renders HTML pages for results instead of JSON API responses.
+2. **Nginx Reverse Proxy**:
+   - Acts as a reverse proxy to forward client requests to the Go application.
+   - Configured for HTTPS using TLS certificates from Let's Encrypt.
 
-Containerized with Docker for ease of deployment.
+3. **TLS/SSL Encryption**:
+   - Ensures secure communication with the web server using a Let's Encrypt certificate.
 
-Nginx Reverse Proxy:
+4. **Docker Compose**:
+   - Orchestrates the Go application and Nginx reverse proxy using a single command.
 
-Acts as a reverse proxy to forward client requests to the Go application.
+5. **Production-Ready Configuration**:
+   - Optimized Nginx settings for security and performance.
 
-Configured for HTTPS using TLS certificates from Let's Encrypt.
+---
 
-TLS/SSL Encryption:
-
-Ensures secure communication with the web server using a Let's Encrypt certificate.
-
-Docker Compose:
-
-Orchestrates the Go application and Nginx reverse proxy using a single command.
-
-Production-Ready Configuration:
-
-Optimized Nginx settings for security and performance.
-
-Repository Structure
+## Repository Structure
 
 FHI
 ├── etc/                 # Configuration files (e.g., environment variables)
@@ -49,49 +45,55 @@ FHI
 ├── go.sum               # Go module checksums
 └── main.go              # Main application entry point
 
-Prerequisites
+---
+
+## Prerequisites
 
 Before starting, ensure you have the following installed:
 
-Docker
+1. [Docker](https://www.docker.com/)
+2. [Docker Compose](https://docs.docker.com/compose/)
+3. [Go](https://golang.org/) (for local development)
 
-Docker Compose
+---
 
-Go (for local development)
+## Setup Instructions
 
-Setup Instructions
+### 1. Clone the Repository
 
-1. Clone the Repository
-
+```bash
 git clone https://github.com/your-repository-name/fhi.git
-cd fhi
+cd fhi 
+```
 
-2. Replace Configuration Parameters
 
-Update DNS settings in nginx/nginx.conf to match your domain:
+### 2. Replace Configuration Parameters
 
-server_name calculator.conectapro.tech www.calculator.conectapro.tech;
+- Update **DNS** settings in `nginx/nginx.conf` to match your domain:
 
-Replace Docker Hub account name in docker-compose.yml with your account:
+  ```nginx
+  server_name calculator.conectapro.tech www.calculator.conectapro.tech;
+  ```
 
-app:
-  image: your_dockerhub_username/fhi-app:latest
+### 3. Build and Run Locally (Development)
 
-3. Build and Run Locally (Development)
+- For local development:
 
-For local development:
-
+```bash
 docker-compose -f docker-compose.dev.yml up --build
+```
 
 Access the Go application at: http://localhost:8080
 
 Access the Nginx reverse proxy at: http://localhost
 
-4. Production Deployment
+### 4. Production Deployment
 
-Build and start the containers:
+- Build and start the containers:
 
+```bash
 docker-compose up --build -d
+```
 
 Ensure the DNS record for your domain (e.g., calculator.conectapro.tech) points to the server's public IP address.
 
@@ -99,13 +101,13 @@ Test HTTPS:
 
 curl -v https://calculator.conectapro.tech
 
-Configuration
+## Configuration
 
-Environment Variables
+### Environment Variables
 
 Update environment variables in etc/ for customizing the application.
 
-Nginx Configuration
+### Nginx Configuration
 
 The nginx/nginx.conf file includes:
 
@@ -129,7 +131,7 @@ server {
     }
 }
 
-Docker Compose
+### Docker Compose
 
 docker-compose.yml orchestrates both the Go app and Nginx reverse proxy.
 
@@ -161,7 +163,7 @@ networks:
   app_network:
     driver: bridge
 
-Testing
+### Testing
 
 Test the Web Application
 
@@ -171,7 +173,7 @@ Visit http://localhost (development) or https://calculator.conectapro.tech (prod
 
 Test the financial health and savings projection by submitting form data on the homepage. The application will render HTML pages with the results.
 
-Troubleshooting
+### Troubleshooting
 
 Nginx Not Forwarding Requests:
 
