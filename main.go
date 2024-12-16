@@ -42,6 +42,12 @@ func main() {
 	e.POST("/financial-health", handlers.FinancialHealth, customMiddleware.ValidateFinancialData)
 	e.POST("/savings-projection", handlers.SavingProjection, customMiddleware.ValidateFinancialData)
 
+	e.GET("/financial-health/survivor", handlers.RenderSurvivor)
+	e.GET("/financial-health/dreamer", handlers.RenderDreamer)
+	e.GET("/financial-health/fighter", handlers.RenderFighter)
+	e.GET("/financial-health/ninja", handlers.RenderNinja)
+	e.GET("/financial-health/champion", handlers.RenderChampion)
+
 	server := &http.Server{
 		Addr:         port,
 		ReadTimeout:  5 * time.Second,

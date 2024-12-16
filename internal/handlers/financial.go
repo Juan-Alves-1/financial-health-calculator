@@ -16,26 +16,42 @@ func FinancialHealth(c echo.Context) error {
 	data := c.Get("financialData").(*models.FinancialData)
 	financialHealthScore := services.CalculateFinancialHealth(*data)
 
-	var templateName string
 	switch {
 	case financialHealthScore <= 1:
-		templateName = "survivor.html"
+		return c.Redirect(http.StatusFound, "/financial-health/survivor")
 	case financialHealthScore <= 2:
-		templateName = "dreamer.html"
+		return c.Redirect(http.StatusFound, "/financial-health/dreamer")
 	case financialHealthScore <= 3:
-		templateName = "fighter.html"
+		return c.Redirect(http.StatusFound, "/financial-health/fighter")
 	case financialHealthScore <= 4:
-		templateName = "ninja.html"
+		return c.Redirect(http.StatusFound, "/financial-health/ninja")
 	default:
-		templateName = "champion.html"
+		return c.Redirect(http.StatusFound, "/financial-health/champion")
 	}
-
-	// Render the selected template
-	return c.Render(http.StatusOK, templateName, nil)
 }
 
 func SavingProjection(c echo.Context) error {
 	data := c.Get("financialData").(*models.FinancialData)
 	pendingMonths := services.MonthlySavingProjection(*data)
 	return c.JSON(http.StatusOK, map[string]int{"savingProjectionInMonths": pendingMonths})
+}
+
+func RenderSurvivor(c echo.Context) error {
+	return c.Render(http.StatusOK, "survivor.html", nil)
+}
+
+func RenderDreamer(c echo.Context) error {
+	return c.Render(http.StatusOK, "dreamer.html", nil)
+}
+
+func RenderFighter(c echo.Context) error {
+	return c.Render(http.StatusOK, "fighter.html", nil)
+}
+
+func RenderNinja(c echo.Context) error {
+	return c.Render(http.StatusOK, "ninja.html", nil)
+}
+
+func RenderChampion(c echo.Context) error {
+	return c.Render(http.StatusOK, "champion.html", nil)
 }

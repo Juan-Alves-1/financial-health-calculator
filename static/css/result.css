@@ -34,17 +34,25 @@ body {
 }
 
 .cta-link {
-    display: inline-block;
+    display: block;
     background-color: #007aff;
     color: white;
     text-decoration: none;
     border-radius: 12px;
+    margin: 10px auto;
     padding: 10px 20px;
+    width: fit-content;
     font-size: 1rem;
     margin-top: 20px;
     transition: background-color 0.3s ease;
+    text-align: center;
 }
 
 .cta-link:hover {
     background-color: #005f99;
+}
+
+button.cta-link {
+    border: none; 
+    cursor: pointer;
 }
