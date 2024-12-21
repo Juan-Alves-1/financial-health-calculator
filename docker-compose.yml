@@ -1,6 +1,6 @@
 services:
   app:
-    image: juanalves/fhi-app:latest #verify why "latest" does not work - manually change the version
+    image: juanalves/fhi-app:v1.9
 
   proxy:
     image: nginx:alpine
