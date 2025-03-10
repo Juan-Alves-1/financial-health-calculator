@@ -2,6 +2,9 @@
 
 The Financial Health Indicator (FHI) is a web application built with Go and Docker, designed as a marketing hook for a fintech company. It calculates financial health and savings projections based on user inputs, offering a clear and intuitive overview of their financial situation.
 
+https://github.com/user-attachments/assets/cf3ef6fb-1274-4cf1-9f6f-545f17514e2e
+
+
 ## Features
 
 1. **Go Application**:
