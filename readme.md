@@ -1,6 +1,6 @@
-# Financial Health Indicator (FHI) Web Application with Nginx Reverse Proxy and TLS
+# Financial Health Indicator (FHI) 
 
-This repository contains the Financial Health Indicator (FHI) Web Application, a Go-based application designed to calculate financial health and savings projections. The application serves HTML pages with results and is containerized alongside a Dockerized Nginx reverse proxy, configured to handle TLS encryption using Let's Encrypt. 
+The Financial Health Indicator (FHI) is a web application built with Go and Docker, designed as a marketing hook for a fintech company. It calculates financial health and savings projections based on user inputs, offering a clear and intuitive overview of their financial situation.
 
 ## Features
 
