@@ -35,7 +35,7 @@ Before starting, ensure you have the following installed:
 3. [Go](https://golang.org/) (for local development)
 
 
-## Setup Instructions
+## Contributing
 
 ### 1. Clone the Repository
 
